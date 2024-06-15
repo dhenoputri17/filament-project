@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Loans extends Model
 {
     use HasFactory;
+
+    public function members(){
+        return $this->belongsTo(Members::class);
+    }
 }

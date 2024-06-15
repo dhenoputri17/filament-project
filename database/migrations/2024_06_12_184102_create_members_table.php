@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('code', 10);
             $table->string('name', 100);
             $table->string('email', 50);
             $table->string('phone_number', 20);

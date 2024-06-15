@@ -17,12 +17,16 @@ class MemberResource extends Resource
 {
     protected static ?string $model = Members::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('code')
+                    ->label('Kode Member')
+                    ->default(fn() => Members::generateCode())
+                    ->disabled(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->label('Nama')
@@ -57,6 +61,7 @@ class MemberResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')->sortable()->searchable()->label('ID'),
+                Tables\Columns\TextColumn::make('code')->sortable()->searchable()->label('Kode Member'),
                 Tables\Columns\TextColumn::make('name')->sortable()->searchable()->label('Nama'),
                 Tables\Columns\TextColumn::make('email')->label('Email'),
                 Tables\Columns\TextColumn::make('phone_number')->label('Nomor Telepon'),

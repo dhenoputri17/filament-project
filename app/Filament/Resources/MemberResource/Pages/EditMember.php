@@ -16,4 +16,11 @@ class EditMember extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $member = $this->record;
+        $member->updateCode();
+        return $data;
+    }
 }
