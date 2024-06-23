@@ -5,13 +5,19 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MemberResource\Pages;
 use App\Filament\Resources\MemberResource\RelationManagers;
 use App\Models\Members;
+use BaconQrCode\Common\ErrorCorrectionLevel as CommonErrorCorrectionLevel;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 
 class MemberResource extends Resource
 {
@@ -25,7 +31,7 @@ class MemberResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('code')
                     ->label('Kode Member')
-                    ->default(fn() => Members::generateCode())
+                    ->default(fn () => Members::generateCode())
                     ->disabled(),
                 Forms\Components\TextInput::make('name')
                     ->required()
@@ -73,7 +79,27 @@ class MemberResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalIcon('heroicon-o-trash'),
+                Tables\Actions\Action::make('openModal')
+                    ->icon('heroicon-s-credit-card')
+                    ->label('Card')
+                    ->modalSubmitActionLabel('Print')
+                    ->modalHeading('Kartu Member')
+                    ->modalWidth('md')
+                    ->modalContent(function($record) {
+                        $renderer = new ImageRenderer(
+                            new RendererStyle(150),
+                            new SvgImageBackEnd()
+                        );
+                        $writer = new Writer($renderer);
+                        $qrcode = $writer->writeString(json_encode($record));
+
+                        return view('idcard', ['member' => $record, 'qrcode' => $qrcode]);
+                    })
+
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -98,4 +124,3 @@ class MemberResource extends Resource
         ];
     }
 }
-
